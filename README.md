@@ -10,7 +10,7 @@ run `npm i`
 
 ## Performance
 
-Run `npm run speed` for serialization/deserializations performance test.
+Run `npm run speed` for serialization/deserialization performance test.
 Make sure to run this command multiple times (or increase number of iterations).
 Feel free to play with the values (number of iterations etc.)
 
@@ -56,4 +56,4 @@ Run `npm run size` for serialized message size.
 
 - parallel execution of tests
 - saving results in csv
-- summary of which value won and what maring (percentage)
+- summary of which value won and what margin (percentage)
