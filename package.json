@@ -4,7 +4,8 @@
   "description": "hands-on testing of how grpc works",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/main.ts",
+    "size": "ts-node src/size.ts",
+    "speed": "ts-node src/speed.ts",
     "proto": "npx protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=. --ts_proto_opt=outputServices=grpc-js,useObservable=true ./proto/*.proto",
     "proto:windows": "npx protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto.cmd --ts_proto_out=. --ts_proto_opt=outputServices=grpc-js,useObservable=true ./proto/*.proto"
   },

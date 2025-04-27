@@ -1,20 +1,23 @@
 syntax = "proto3";
 
-package transfer;
+package test;
 
-service TestService {
-    rpc Test(TestRequest) returns (TestResponse) {}
+message Value {
+  oneof kind {
+    DoubleList double_list = 1;
+    StringList string_list = 2;
+  }
 }
 
-message TestRequest {
-    string data = 1;
+message Value2 {
+  repeated double double_list = 1;
+  repeated string string_list = 2;
 }
 
-message TestInfo {
-    string a = 1;
-    string b = 2;
+message DoubleList {
+  repeated double values = 1;
 }
 
-message TestResponse {
-    bool success = 1;
+message StringList {
+  repeated string values = 1;
 }

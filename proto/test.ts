@@ -6,50 +6,46 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import {
-  type CallOptions,
-  ChannelCredentials,
-  Client,
-  type ClientOptions,
-  type ClientUnaryCall,
-  type handleUnaryCall,
-  makeGenericClientConstructor,
-  Metadata,
-  type ServiceError,
-  type UntypedServiceImplementation,
-} from "@grpc/grpc-js";
 
-export const protobufPackage = "transfer";
+export const protobufPackage = "test";
 
-export interface TestRequest {
-  data: string;
+export interface Value {
+  doubleList?: DoubleList | undefined;
+  stringList?: StringList | undefined;
 }
 
-export interface TestInfo {
-  a: string;
-  b: string;
+export interface Value2 {
+  doubleList: number[];
+  stringList: string[];
 }
 
-export interface TestResponse {
-  success: boolean;
+export interface DoubleList {
+  values: number[];
 }
 
-function createBaseTestRequest(): TestRequest {
-  return { data: "" };
+export interface StringList {
+  values: string[];
 }
 
-export const TestRequest: MessageFns<TestRequest> = {
-  encode(message: TestRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.data !== "") {
-      writer.uint32(10).string(message.data);
+function createBaseValue(): Value {
+  return { doubleList: undefined, stringList: undefined };
+}
+
+export const Value: MessageFns<Value> = {
+  encode(message: Value, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.doubleList !== undefined) {
+      DoubleList.encode(message.doubleList, writer.uint32(10).fork()).join();
+    }
+    if (message.stringList !== undefined) {
+      StringList.encode(message.stringList, writer.uint32(18).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): TestRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): Value {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseTestRequest();
+    const message = createBaseValue();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -58,68 +54,7 @@ export const TestRequest: MessageFns<TestRequest> = {
             break;
           }
 
-          message.data = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): TestRequest {
-    return { data: isSet(object.data) ? globalThis.String(object.data) : "" };
-  },
-
-  toJSON(message: TestRequest): unknown {
-    const obj: any = {};
-    if (message.data !== "") {
-      obj.data = message.data;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<TestRequest>, I>>(base?: I): TestRequest {
-    return TestRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<TestRequest>, I>>(object: I): TestRequest {
-    const message = createBaseTestRequest();
-    message.data = object.data ?? "";
-    return message;
-  },
-};
-
-function createBaseTestInfo(): TestInfo {
-  return { a: "", b: "" };
-}
-
-export const TestInfo: MessageFns<TestInfo> = {
-  encode(message: TestInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.a !== "") {
-      writer.uint32(10).string(message.a);
-    }
-    if (message.b !== "") {
-      writer.uint32(18).string(message.b);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): TestInfo {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseTestInfo();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.a = reader.string();
+          message.doubleList = DoubleList.decode(reader, reader.uint32());
           continue;
         }
         case 2: {
@@ -127,7 +62,7 @@ export const TestInfo: MessageFns<TestInfo> = {
             break;
           }
 
-          message.b = reader.string();
+          message.stringList = StringList.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -139,60 +74,87 @@ export const TestInfo: MessageFns<TestInfo> = {
     return message;
   },
 
-  fromJSON(object: any): TestInfo {
+  fromJSON(object: any): Value {
     return {
-      a: isSet(object.a) ? globalThis.String(object.a) : "",
-      b: isSet(object.b) ? globalThis.String(object.b) : "",
+      doubleList: isSet(object.doubleList) ? DoubleList.fromJSON(object.doubleList) : undefined,
+      stringList: isSet(object.stringList) ? StringList.fromJSON(object.stringList) : undefined,
     };
   },
 
-  toJSON(message: TestInfo): unknown {
+  toJSON(message: Value): unknown {
     const obj: any = {};
-    if (message.a !== "") {
-      obj.a = message.a;
+    if (message.doubleList !== undefined) {
+      obj.doubleList = DoubleList.toJSON(message.doubleList);
     }
-    if (message.b !== "") {
-      obj.b = message.b;
+    if (message.stringList !== undefined) {
+      obj.stringList = StringList.toJSON(message.stringList);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TestInfo>, I>>(base?: I): TestInfo {
-    return TestInfo.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Value>, I>>(base?: I): Value {
+    return Value.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TestInfo>, I>>(object: I): TestInfo {
-    const message = createBaseTestInfo();
-    message.a = object.a ?? "";
-    message.b = object.b ?? "";
+  fromPartial<I extends Exact<DeepPartial<Value>, I>>(object: I): Value {
+    const message = createBaseValue();
+    message.doubleList = (object.doubleList !== undefined && object.doubleList !== null)
+      ? DoubleList.fromPartial(object.doubleList)
+      : undefined;
+    message.stringList = (object.stringList !== undefined && object.stringList !== null)
+      ? StringList.fromPartial(object.stringList)
+      : undefined;
     return message;
   },
 };
 
-function createBaseTestResponse(): TestResponse {
-  return { success: false };
+function createBaseValue2(): Value2 {
+  return { doubleList: [], stringList: [] };
 }
 
-export const TestResponse: MessageFns<TestResponse> = {
-  encode(message: TestResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.success !== false) {
-      writer.uint32(8).bool(message.success);
+export const Value2: MessageFns<Value2> = {
+  encode(message: Value2, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    writer.uint32(10).fork();
+    for (const v of message.doubleList) {
+      writer.double(v);
+    }
+    writer.join();
+    for (const v of message.stringList) {
+      writer.uint32(18).string(v!);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): TestResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): Value2 {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseTestResponse();
+    const message = createBaseValue2();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1: {
-          if (tag !== 8) {
+          if (tag === 9) {
+            message.doubleList.push(reader.double());
+
+            continue;
+          }
+
+          if (tag === 10) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.doubleList.push(reader.double());
+            }
+
+            continue;
+          }
+
+          break;
+        }
+        case 2: {
+          if (tag !== 18) {
             break;
           }
 
-          message.success = reader.bool();
+          message.stringList.push(reader.string());
           continue;
         }
       }
@@ -204,67 +166,169 @@ export const TestResponse: MessageFns<TestResponse> = {
     return message;
   },
 
-  fromJSON(object: any): TestResponse {
-    return { success: isSet(object.success) ? globalThis.Boolean(object.success) : false };
+  fromJSON(object: any): Value2 {
+    return {
+      doubleList: globalThis.Array.isArray(object?.doubleList)
+        ? object.doubleList.map((e: any) => globalThis.Number(e))
+        : [],
+      stringList: globalThis.Array.isArray(object?.stringList)
+        ? object.stringList.map((e: any) => globalThis.String(e))
+        : [],
+    };
   },
 
-  toJSON(message: TestResponse): unknown {
+  toJSON(message: Value2): unknown {
     const obj: any = {};
-    if (message.success !== false) {
-      obj.success = message.success;
+    if (message.doubleList?.length) {
+      obj.doubleList = message.doubleList;
+    }
+    if (message.stringList?.length) {
+      obj.stringList = message.stringList;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TestResponse>, I>>(base?: I): TestResponse {
-    return TestResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Value2>, I>>(base?: I): Value2 {
+    return Value2.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TestResponse>, I>>(object: I): TestResponse {
-    const message = createBaseTestResponse();
-    message.success = object.success ?? false;
+  fromPartial<I extends Exact<DeepPartial<Value2>, I>>(object: I): Value2 {
+    const message = createBaseValue2();
+    message.doubleList = object.doubleList?.map((e) => e) || [];
+    message.stringList = object.stringList?.map((e) => e) || [];
     return message;
   },
 };
 
-export type TestServiceService = typeof TestServiceService;
-export const TestServiceService = {
-  test: {
-    path: "/transfer.TestService/Test",
-    requestStream: false,
-    responseStream: false,
-    requestSerialize: (value: TestRequest) => Buffer.from(TestRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => TestRequest.decode(value),
-    responseSerialize: (value: TestResponse) => Buffer.from(TestResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => TestResponse.decode(value),
+function createBaseDoubleList(): DoubleList {
+  return { values: [] };
+}
+
+export const DoubleList: MessageFns<DoubleList> = {
+  encode(message: DoubleList, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    writer.uint32(10).fork();
+    for (const v of message.values) {
+      writer.double(v);
+    }
+    writer.join();
+    return writer;
   },
-} as const;
 
-export interface TestServiceServer extends UntypedServiceImplementation {
-  test: handleUnaryCall<TestRequest, TestResponse>;
+  decode(input: BinaryReader | Uint8Array, length?: number): DoubleList {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDoubleList();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag === 9) {
+            message.values.push(reader.double());
+
+            continue;
+          }
+
+          if (tag === 10) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.values.push(reader.double());
+            }
+
+            continue;
+          }
+
+          break;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DoubleList {
+    return {
+      values: globalThis.Array.isArray(object?.values) ? object.values.map((e: any) => globalThis.Number(e)) : [],
+    };
+  },
+
+  toJSON(message: DoubleList): unknown {
+    const obj: any = {};
+    if (message.values?.length) {
+      obj.values = message.values;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DoubleList>, I>>(base?: I): DoubleList {
+    return DoubleList.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DoubleList>, I>>(object: I): DoubleList {
+    const message = createBaseDoubleList();
+    message.values = object.values?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseStringList(): StringList {
+  return { values: [] };
 }
 
-export interface TestServiceClient extends Client {
-  test(request: TestRequest, callback: (error: ServiceError | null, response: TestResponse) => void): ClientUnaryCall;
-  test(
-    request: TestRequest,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: TestResponse) => void,
-  ): ClientUnaryCall;
-  test(
-    request: TestRequest,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: TestResponse) => void,
-  ): ClientUnaryCall;
-}
+export const StringList: MessageFns<StringList> = {
+  encode(message: StringList, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.values) {
+      writer.uint32(10).string(v!);
+    }
+    return writer;
+  },
 
-export const TestServiceClient = makeGenericClientConstructor(
-  TestServiceService,
-  "transfer.TestService",
-) as unknown as {
-  new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>): TestServiceClient;
-  service: typeof TestServiceService;
-  serviceName: string;
+  decode(input: BinaryReader | Uint8Array, length?: number): StringList {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseStringList();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.values.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): StringList {
+    return {
+      values: globalThis.Array.isArray(object?.values) ? object.values.map((e: any) => globalThis.String(e)) : [],
+    };
+  },
+
+  toJSON(message: StringList): unknown {
+    const obj: any = {};
+    if (message.values?.length) {
+      obj.values = message.values;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<StringList>, I>>(base?: I): StringList {
+    return StringList.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<StringList>, I>>(object: I): StringList {
+    const message = createBaseStringList();
+    message.values = object.values?.map((e) => e) || [];
+    return message;
+  },
 };
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
