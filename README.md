@@ -2,6 +2,10 @@
 
 Testing alternative proto message definitons. De/serialization speed and encoded message size
 
+# Setup
+
+run `npm i`
+
 # How to Run
 
 ## Performance
