@@ -1,0 +1,22 @@
+{
+  "name": "grpc_testing",
+  "version": "1.0.0",
+  "description": "hands-on testing of how grpc works",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/main.ts",
+    "proto": "npx protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=. --ts_proto_opt=outputServices=grpc-js,useObservable=true ./proto/*.proto",
+    "proto:windows": "npx protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto.cmd --ts_proto_out=. --ts_proto_opt=outputServices=grpc-js,useObservable=true ./proto/*.proto"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.13.3",
+    "@grpc/proto-loader": "^0.7.15"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "ts-proto": "^2.7.0"
+  }
+}
