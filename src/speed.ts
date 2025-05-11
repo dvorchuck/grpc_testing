@@ -1,29 +1,7 @@
-import { Value, Value2 } from "../proto/test";
+import { DoubleList, StringList, Value, Value2 } from "../proto/test";
+import { ValueAny } from "../proto/any";
 
 const ITERATIONS = 10_000; // number of repeats in benchmark test
-
-function prepareData() {
-  const doubles = Array.from({ length: 1000 }, (_, i) => i * 0.1);
-  const strings = Array.from({ length: 1000 }, (_, i) => `str${i}`);
-
-  const value = Value.fromJSON({
-    doubleList: { values: doubles },
-  });
-
-  const value2 = Value2.fromJSON({
-    doubleList: doubles,
-  });
-
-  const stringValue = Value.fromJSON({
-    stringList: { values: strings },
-  });
-
-  const stringValue2 = Value2.fromJSON({
-    stringList: strings,
-  });
-
-  return { value, value2, stringValue, stringValue2 };
-}
 
 function benchmark(label: string, fn: () => void, iterations: number) {
   const start = process.hrtime.bigint();
@@ -43,12 +21,45 @@ function benchmark(label: string, fn: () => void, iterations: number) {
 }
 
 function main() {
-  const { value, value2, stringValue, stringValue2 } = prepareData();
+  const doubles = Array.from({ length: 1000 }, (_, i) => i * 0.1);
+  const strings = Array.from({ length: 1000 }, (_, i) => `str${i}`);
+
+  const value = Value.fromJSON({
+    doubleList: { values: doubles },
+  });
+
+  const value2 = Value2.fromJSON({
+    doubleList: doubles,
+  });
+
+  const valueAnyDoubleList = ValueAny.fromJSON({
+    value: {
+      typeUrl: "type.googleapis.com/test.DoubleList",
+      value: DoubleList.encode({ values: doubles }).finish(),
+    },
+  });
+
+  const stringValue = Value.fromJSON({
+    stringList: { values: strings },
+  });
+
+  const stringValue2 = Value2.fromJSON({
+    stringList: strings,
+  });
+
+  const valueAnyStringList = ValueAny.fromJSON({
+    value: {
+      typeUrl: "type.googleapis.com/test.DoubleList",
+      value: StringList.encode({ values: strings }).finish(),
+    },
+  });
 
   const bufferValue = Value.encode(value).finish();
   const bufferValue2 = Value2.encode(value2).finish();
+  const bufferValueAnyDoubleList = ValueAny.encode(valueAnyDoubleList).finish();
   const bufferStringValue = Value.encode(stringValue).finish();
   const bufferStringValue2 = Value2.encode(stringValue2).finish();
+  const bufferValueAnyStringList = ValueAny.encode(valueAnyStringList).finish();
 
   console.log("--- Benchmark: Serialization ---");
   benchmark(
@@ -68,6 +79,14 @@ function main() {
   );
 
   benchmark(
+    "ValueAny.encode() - doubles (skips the 'value' serializaiton)",
+    () => {
+      ValueAny.encode(valueAnyDoubleList).finish();
+    },
+    ITERATIONS
+  );
+
+  benchmark(
     "StringValue.encode()",
     () => {
       Value.encode(stringValue).finish();
@@ -79,6 +98,14 @@ function main() {
     "StringValue2.encode()",
     () => {
       Value2.encode(stringValue2).finish();
+    },
+    ITERATIONS
+  );
+
+  benchmark(
+    "ValueAny.encode() - strings (skips the 'value' serializaiton)",
+    () => {
+      ValueAny.encode(valueAnyStringList).finish();
     },
     ITERATIONS
   );
@@ -101,6 +128,14 @@ function main() {
   );
 
   benchmark(
+    "Value2.decode() - doubles",
+    () => {
+      ValueAny.decode(bufferValueAnyDoubleList);
+    },
+    ITERATIONS
+  );
+
+  benchmark(
     "StringValue.decode()",
     () => {
       Value.decode(bufferStringValue);
@@ -112,6 +147,14 @@ function main() {
     "StringValue2.decode()",
     () => {
       Value2.decode(bufferStringValue2);
+    },
+    ITERATIONS
+  );
+
+  benchmark(
+    "ValueAny.decode() - strings",
+    () => {
+      ValueAny.decode(bufferValueAnyStringList);
     },
     ITERATIONS
   );
